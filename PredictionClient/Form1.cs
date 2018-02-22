@@ -23,17 +23,16 @@ namespace PredictionClient
         private void Form1_Load(object sender, EventArgs e)
         {
             nn.buildNetwork(new Int3[] { new Int3(2,1,1),
-                                         new Int3(3,1,1),
+                                         new Int3(4,1,1),
+                                         new Int3(4,1,1),
                                          new Int3(1,1,1)});
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
-        { 
+        {
             var g = pictureBox1.CreateGraphics();
 
-            Color clr = Color.Black;
-
-            List<int> vals = new List<int>();
+            Color clr;
 
             g.Clear(Color.White);
             for (int x = 0; x < 20; x++)
@@ -48,12 +47,16 @@ namespace PredictionClient
 
                     nn.runNetwork();
 
-                    clr = Color.FromArgb((int)(nn.layers[2].data[0] * 254), 0, 0, 0);
-                    vals.Add((int)(nn.layers[2].data[0] * 255));
+                    int clrVal = (int)(nn.layers[3].data[0] * 255);
+
+                    clr = Color.FromArgb(clrVal, 0, 0, 0);
                     g.FillRectangle(new SolidBrush(clr), x * 25, y * 25, 25, 25);
                 }
             }
-            for (int i = 0; i < 10; i++)
+
+            nn.clearNetwork();
+
+            for (int i = 0; i < 100; i++)
             {
                 nn.trainStep();
             }

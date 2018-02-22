@@ -57,4 +57,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y $(SolutionDir)kernel.ptx $(TargetDir)kernel.ptx</PostBuildEvent>
+  </PropertyGroup>
 </Project>
