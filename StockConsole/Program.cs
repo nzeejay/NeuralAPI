@@ -17,7 +17,7 @@ namespace StockConsole
                                          new Int3(4,1,1),
                                          new Int3(1,1,1)});
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 10000; i++)
             {
                 nn.trainStep();
             }

@@ -17,11 +17,12 @@ namespace PredictionNetwork
     public class Layer
     {
         public CudaDeviceVariable<float> data;
-        public CudaDeviceVariable<float> bpData;
+        public CudaDeviceVariable<float> bias;
         public CudaDeviceVariable<float> weights; //weights to the forward layer 
 
         //backprop
         public CudaDeviceVariable<float> error;
+        public CudaDeviceVariable<float> vel;
 
         public Int3 size;
 
@@ -35,7 +36,7 @@ namespace PredictionNetwork
             this.size = size;
 
             data = new float[size.Mul];
-            bpData = new float[size.Mul];
+            bias = new float[size.Mul];
             error = new float[size.Mul];
 
             clear = ctx.LoadKernel("kernel.ptx", "Clear");
@@ -47,7 +48,7 @@ namespace PredictionNetwork
             this.size = size;
 
             data = new float[size.Mul];
-            bpData = new float[size.Mul];
+            bias = new float[size.Mul];
             error = new float[size.Mul];
 
             generateWeights(size, prev.size, kType);
@@ -73,6 +74,7 @@ namespace PredictionNetwork
             {
                 case (kernelType.fullyConnected):
                     var wei = new float[size.Mul * prevSize.Mul];
+                    vel = new float[size.Mul * prevSize.Mul];
 
                     Random r = new Random();
 
