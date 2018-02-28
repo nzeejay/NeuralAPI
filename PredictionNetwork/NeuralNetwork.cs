@@ -12,6 +12,8 @@ namespace PredictionNetwork
     {
         public Layer[] layers;
 
+        public List<TrainingItem> trainingItems = new List<TrainingItem>();
+
         public CudaContext ctx;
 
         public void buildNetwork(Int3[] size)
@@ -65,50 +67,25 @@ namespace PredictionNetwork
             }
         }
 
-        public void trainStep()
+        public void trainStep(int batchSize, float learningRate)
         {
-            (float x, float y, float a)[] test = { (0, 0, 0), (1, 0, 1), (0, 1, 1), (1, 1, 0)};
+            Random r = new Random();
 
-            float error = 0;
-            float trueError = 0;
-
-            for (int i = 0; i < test.Length; i++)
+            for (int i = 0; i < batchSize; i++)
             {
+                int index = r.Next(trainingItems.Count);
+
                 clearNetwork();
-                layers[0].data[0] = test[i].x;
-                layers[0].data[1] = test[i].y;
+                layers[0].data.CopyToDevice(trainingItems[index].input);
                 runNetwork();
-                float err = (layers[layers.Length - 1].data[0] - test[i].a);
-
-                layers[layers.Length - 1].error[0] = err;
-                backpropNetwork(0.1f);
-
-                error += err;
-                trueError += err * err;
+                layers[layers.Length - 1].error.CopyToDevice(trainingItems[index].input);
+                backpropNetwork(learningRate);
             }
+        }
 
-            //error /= test.Length;
-            //trueError /= test.Length;
-            //
-            //layers[layers.Length - 1].error[0] = trueError;
-            //
-            //backpropNetwork(0.1f);
+        public float getError()
+        {
 
-
-            //error = 0;
-            //
-            //for (int i = 0; i < test.Length; i++)
-            //{ 
-            //    clearNetwork();
-            //    layers[0].data[0] = test[i].x;
-            //    layers[0].data[1] = test[i].y;
-            //    runNetwork();
-            //    error += (float)Math.Pow(layers[2].data[0] - test[i].a, 2);
-            //}
-            //
-            //error /= 4;
-            //
-            //clearNetwork();
         }
     }
 }

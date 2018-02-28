@@ -5,6 +5,32 @@ extern "C"
 		return (x + (y * Y)) + (z * X * Y);
 	}
 
+	//activations
+	__global__ void Activate(float* data, float* bias, int activationID) {
+		int ID = getIndex(blockIdx.x, blockIdx.y, blockIdx.z, gridDim.x, gridDim.y);
+
+		switch (activationID)
+		{
+		case(0):
+			data[ID] = sigmoid(data[ID] + bias[ID]);
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	__device__ float activateDer(float f, int activationID) {
+		switch (activationID)
+		{
+		case(0):
+			return sigmoidDer(f);
+			break;
+		}
+
+		return 1.f;
+	}
+
 	__device__ float sigmoid(float f) {
 		return 1 / (1 + __expf(-f));
 	}
@@ -13,19 +39,8 @@ extern "C"
 		return f * (1 - f);
 	}
 
-	//activations
-	__global__ void Sigmoid(float* data, float* bias) {
-		int ID = getIndex(blockIdx.x, blockIdx.y, blockIdx.z, gridDim.x, gridDim.y);
-
-		data[ID] = sigmoid(data[ID] + bias[ID]);
-	}
-
 	// Device code
 	__global__ void Forward(float* data, float* weights, float* prev) {
-
-		//__shared__ float thisNode;
-		//
-		//__syncthreads();
 
 		int thisLayerID = getIndex(blockIdx.x, blockIdx.y, blockIdx.z, gridDim.x, gridDim.y);
 
@@ -34,17 +49,8 @@ extern "C"
 		int weightID = thisLayerID * (blockDim.x * blockDim.y * blockDim.z) + prevLayerID;
 
 		float val = prev[prevLayerID] * weights[weightID];
-
-		//printf("%f \r\n", val);
-
+	
 		atomicAdd(&data[thisLayerID], val);
-
-		//__syncthreads();
-		//
-		////activation function
-		//if (threadIdx.x + threadIdx.y + threadIdx.z == 0) 
-		//	data[thisLayerID] = sigmoid(thisNode);
-
 	}
 
 	__global__ void Backprop(float* data, float* weights, float* bias, float* prev, float* error, float* prevError, float* vel, float step, float mu) {
@@ -56,17 +62,17 @@ extern "C"
 
 		int weightID = thisLayerID * blockSize + prevLayerID;
 
-		float prevActGD = weights[weightID] * sigmoidDer(prev[prevLayerID]) * error[thisLayerID];
+		float err = 2 * (data[thisLayerID] - error[thisLayerID]);
+
+		float prevActGD = weights[weightID] * activateDer(prev[prevLayerID], 0) * err;
 		atomicAdd(&prevError[prevLayerID], prevActGD);
 
-		float gradient = (step * sigmoidDer(prev[prevLayerID]) * 2 * error[thisLayerID]);// * (1 + powf(error[thisLayerID], 2));
+		float gradient = step * activateDer(prev[prevLayerID], 0) * err;
 
-		float velocity = vel[weightID] * 0.001f - (prev[prevLayerID] * gradient); 
+		float velocity = vel[weightID] * mu - (prev[prevLayerID] * gradient);
 		vel[weightID] = velocity;
 		weights[weightID] += velocity;
 		bias[thisLayerID] += gradient;
-		
-		//printf("%i %i %i %f %f\r\n", thisLayerID, prevLayerID, weightID, weightGD, prevActGD);
 	}
 
 	__global__ void Clear(float* data, float* error) {
