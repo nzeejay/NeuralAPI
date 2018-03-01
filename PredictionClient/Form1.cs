@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
+
 using PredictionNetwork;
 
 namespace PredictionClient
@@ -22,9 +24,22 @@ namespace PredictionClient
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            nn.buildNetwork(new Int3[] { new Int3(2,1,1),
-                                         new Int3(128,1,1),
-                                         new Int3(1,1,1)});
+
+            nn.buildNetwork(new(Int3 size, int type)[] {(new Int3(2,1,1), 0 ),
+                                                        (new Int3(4,1,1), 0 ),
+                                                        //(new Int3(16,1,1), 0 ),
+                                                        //(new Int3(4,1,1), 1 ),
+                                                        (new Int3(1,1,1), 0 )});
+
+
+            nn.trainingItems.Add(new TrainingItem(new float[] { 0, 0 }, new float[] { 0 }));
+            nn.trainingItems.Add(new TrainingItem(new float[] { 1, 0 }, new float[] { 1 }));
+            nn.trainingItems.Add(new TrainingItem(new float[] { 0, 1 }, new float[] { 1 }));
+            nn.trainingItems.Add(new TrainingItem(new float[] { 1, 1 }, new float[] { 0 }));
+            //nn.trainingItems.Add(new TrainingItem(new float[] { 1, 0.5f }, new float[] { 1 }));
+            //nn.trainingItems.Add(new TrainingItem(new float[] { 0, 0.5f }, new float[] { 1 }));
+            //nn.trainingItems.Add(new TrainingItem(new float[] { 0.25f, 0.5f }, new float[] { 0.5f }));
+            //nn.trainingItems.Add(new TrainingItem(new float[] { 0.75f, 0.5f }, new float[] { 0.5f }));
 
         }
 
@@ -32,36 +47,47 @@ namespace PredictionClient
         {
             for (int i = 0; i < 100; i++)
             {
-                nn.trainStep();
+                nn.trainStep(-1, 0.1f, 0.9f);
             }
+
+            Text = "" + nn.printError(-1);
 
             var g = pictureBox1.CreateGraphics();
 
             Color clr;
 
-            g.Clear(Color.White);
-            for (int x = 0; x < 20; x++)
+            int w = 30;
+
+            int[][] clrArr = new int[w][];
+
+            for (int x = 0; x < w; x++)
             {
-                for (int y = 0; y < 20; y++)
+                clrArr[x] = new int[w];
+                for (int y = 0; y < w; y++)
                 {
-                    
+
                     nn.clearNetwork();
 
-                    nn.layers[0].data[0] = x / 20.0f;
-                    nn.layers[0].data[1] = y / 20.0f;
+                    nn.layers[0].data[0] = (x) / (w - 1f);
+                    nn.layers[0].data[1] = (y) / (w - 1f);
 
                     nn.runNetwork();
 
-                    nn.ctx.Synchronize();
+                    clrArr[x][y] = (int)(nn.layers[nn.layers.Length - 1].data[0] * 255);
 
-                    int clrVal = (int)(nn.layers[nn.layers.Length - 1].data[0] * 255);
-
-                    clr = Color.FromArgb(clrVal, 0, 0, 0);
-                    g.FillRectangle(new SolidBrush(clr), y * 25, x * 25, 25, 25);
                 }
             }
+            g.Clear(Color.White);
+            for (int x = 0; x < w; x++)
+                for (int y = 0; y < w; y++)
+                {
+                    clr = Color.FromArgb(Math.Max(0,Math.Min(clrArr[x][y],255)), 0, 0, 0);
+                    g.FillRectangle(new SolidBrush(clr), y * 25, x * 25, 25, 25);
+                }
 
             nn.clearNetwork();
+
+            //Thread.Sleep(60);
 
             draw(null, null);
         }

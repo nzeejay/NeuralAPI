@@ -16,18 +16,21 @@ namespace PredictionNetwork
 
         public CudaContext ctx;
 
-        public void buildNetwork(Int3[] size)
+        Random r = new Random();
+
+        public void buildNetwork((Int3 size, int type)[] info)
         {
             ctx = new CudaContext();
 
-            layers = new Layer[size.Length];
+            layers = new Layer[info.Length];
 
-            layers[0] = new Layer(size[0], ctx);
+            layers[0] = new Layer(info[0].size, ctx);
 
             for (int i = 1; i < layers.Length; i++)
             {
-                layers[i] = new Layer(size[i], layers[i - 1], ctx, kernelType.fullyConnected);
+                layers[i] = new Layer(info[i].size, layers[i - 1], ctx, info[i].type);
             }
+
         }
 
         public void runNetwork()
@@ -38,11 +41,11 @@ namespace PredictionNetwork
                                       layers[i].weights.DevicePointer, 
                                       layers[i - 1].data.DevicePointer);
 
-                layers[i].activate.Run(layers[i].data.DevicePointer, layers[i].bias.DevicePointer);
+                layers[i].activate.Run(layers[i].data.DevicePointer, layers[i].bias.DevicePointer, layers[i].type);
             }
         }
 
-        public void backpropNetwork(float step)
+        public void backpropNetwork(float step, float mu)
         {
             for (int i = layers.Length - 1; i > 0; i--)
             {
@@ -54,7 +57,8 @@ namespace PredictionNetwork
                                    layers[i - 1].error.DevicePointer,
                                    layers[i].vel.DevicePointer,
                                    step,
-                                   0.01f);
+                                   mu,
+                                   layers[i].type);
             }
         }
 
@@ -67,25 +71,86 @@ namespace PredictionNetwork
             }
         }
 
-        public void trainStep(int batchSize, float learningRate)
+        public void trainStep(int batchSize, float learningRate, float mu)
         {
-            Random r = new Random();
+            bool isScholastic = false;
+
+            if (batchSize == -1)
+                isScholastic = true;
+
+            if (isScholastic)
+                batchSize = trainingItems.Count();
 
             for (int i = 0; i < batchSize; i++)
             {
-                int index = r.Next(trainingItems.Count);
+                int index = i;
+
+                if (!isScholastic)
+                    r.Next(trainingItems.Count);
 
                 clearNetwork();
                 layers[0].data.CopyToDevice(trainingItems[index].input);
                 runNetwork();
-                layers[layers.Length - 1].error.CopyToDevice(trainingItems[index].input);
-                backpropNetwork(learningRate);
+
+                var err = getError(layers[layers.Length - 1].data, trainingItems[index].output);
+
+                layers[layers.Length - 1].error.CopyToDevice(err);
+
+                backpropNetwork(learningRate, mu);
             }
+
+            clearNetwork();
         }
 
-        public float getError()
+        private float[] getError(float[] data, float[] expected)
         {
+            float[] ret = new float[data.Length];
+            for (int i = 0; i < ret.Length; i++)
+            {
+                //ret[i] = data[i] - expected[i];
+                ret[i] = expected[i] - data[i];
+            }
 
+            return ret;
+        }
+
+        public float printError(int batchSize)
+        {
+            bool isScholastic = false;
+
+            if (batchSize == -1)
+                isScholastic = true;
+
+            if (isScholastic)
+                batchSize = trainingItems.Count();
+
+            float err = 0;
+
+            for (int i = 0; i < batchSize; i++)
+            {
+                int index = i;
+
+                if (!isScholastic)
+                    r.Next(trainingItems.Count);
+
+                clearNetwork();
+                layers[0].data.CopyToDevice(trainingItems[index].input);
+                runNetwork();
+
+                float[] output = layers[layers.Length - 1].data;
+
+                float tempErr = 0;
+
+                for (int j = 0; j < output.Length; j++)
+                {
+                    tempErr += (float)Math.Pow(trainingItems[index].output[j] - output[j], 2);
+                }
+
+                err += tempErr / output.Length;
+            }
+
+            clearNetwork();
+            return err / batchSize;
         }
     }
 }

@@ -26,10 +26,14 @@ namespace PredictionNetwork
 
         public Int3 size;
 
+        public int type = -1;
+
         public CudaKernel forward;
         public CudaKernel activate;
         public CudaKernel back;
         public CudaKernel clear;
+
+        Random r = new Random();
 
         public Layer(Int3 size, CudaContext ctx)
         {
@@ -43,15 +47,16 @@ namespace PredictionNetwork
             clear.GridDimensions = new dim3(size.x, size.y, size.z);
         }
 
-        public Layer(Int3 size, Layer prev, CudaContext ctx, kernelType kType)
+        public Layer(Int3 size, Layer prev, CudaContext ctx, int type)
         {
+            this.type = type;
             this.size = size;
 
             data = new float[size.Mul];
             bias = new float[size.Mul];
             error = new float[size.Mul];
 
-            generateWeights(size, prev.size, kType);
+            generateWeights(size, prev.size, kernelType.fullyConnected);
 
             forward = ctx.LoadKernel("kernel.ptx", "Forward");
             forward.GridDimensions = new dim3(size.x, size.y, size.z);
@@ -64,7 +69,7 @@ namespace PredictionNetwork
             clear = ctx.LoadKernel("kernel.ptx", "Clear");
             clear.GridDimensions = new dim3(size.x, size.y, size.z);
 
-            activate = ctx.LoadKernel("kernel.ptx", "Sigmoid");
+            activate = ctx.LoadKernel("kernel.ptx", "Activate");
             activate.GridDimensions = new dim3(size.x, size.y, size.z);
         }
 
@@ -76,10 +81,8 @@ namespace PredictionNetwork
                     var wei = new float[size.Mul * prevSize.Mul];
                     vel = new float[size.Mul * prevSize.Mul];
 
-                    Random r = new Random();
-
                     for (int i = 0; i < wei.Length; i++)
-                        wei[i] = (float)(r.NextDouble()-0.5) * 5;
+                        wei[i] = (float)(r.NextDouble() - 0.5) * 2;
 
                     weights = wei;
 
