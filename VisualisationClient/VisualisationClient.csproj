@@ -106,7 +106,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PredictionNetwork\NeuralAPI.csproj">
+    <ProjectReference Include="..\NeuralAPI\NeuralAPI.csproj">
       <Project>{e8f4874d-dfa5-4efd-b6c9-1c8df1ca0c14}</Project>
       <Name>NeuralAPI</Name>
     </ProjectReference>
