@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 
-using PredictionNetwork;
+using NeuralAPI;
 
-namespace PredictionClient
+namespace VisualisationClient
 {
     public partial class Form1 : Form
     {
@@ -25,11 +25,9 @@ namespace PredictionClient
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            nn.buildNetwork(new(Int3 size, int type)[] {(new Int3(2,1,1), 0 ),
-                                                        (new Int3(4,1,1), 0 ),
-                                                        //(new Int3(16,1,1), 0 ),
-                                                        //(new Int3(4,1,1), 1 ),
-                                                        (new Int3(1,1,1), 0 )});
+            nn.buildNetwork(new dynamic[] {new {size = new Int3(2,1,1), type = 0 },
+                                           new {size = new Int3(4,1,1), type = 0 },
+                                           new {size = new Int3(1,1,1), type = 0 }});
 
 
             nn.trainingItems.Add(new TrainingItem(new float[] { 0, 0 }, new float[] { 0 }));

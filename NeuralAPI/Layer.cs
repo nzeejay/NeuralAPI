@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using ManagedCuda;
 using ManagedCuda.VectorTypes;
 
-namespace PredictionNetwork
+namespace NeuralAPI
 {
     public enum kernelType
     {

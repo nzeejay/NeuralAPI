@@ -33,7 +33,7 @@ extern "C"
 	__global__ void Activate(float* data, float* bias, int activationID) {
 		int ID = getIndex(blockIdx.x, blockIdx.y, blockIdx.z, gridDim.x, gridDim.y);
 
-		switch (0)
+		switch (activationID)
 		{
 		case(0):
 			data[ID] = sigmoid(data[ID] + bias[ID]);
@@ -63,7 +63,9 @@ extern "C"
 	}
 
 	// Device code
-	__global__ void Forward(float* data, float* weights, float* prev) {
+	__global__ void Forward(float* data, 
+							float* weights, 
+						    float* prev) {
 
 		int thisLayerID = getIndex(blockIdx.x, blockIdx.y, blockIdx.z, gridDim.x, gridDim.y);
 
@@ -76,7 +78,16 @@ extern "C"
 		atomicAdd(&data[thisLayerID], val);
 	}
 
-	__global__ void Backprop(float* data, float* weights, float* bias, float* prev, float* error, float* prevError, float* vel, float step, float mu, int type) {
+	__global__ void Backprop(float* data, 
+							 float* weights, 
+							 float* bias, 
+							 float* prev, 
+							 float* error, 
+							 float* prevError, 
+							 float* vel, 
+							 float step, 
+							 float mu, 
+							 int type) {
 		int blockSize = (blockDim.x * blockDim.y * blockDim.z);
 
 		int thisLayerID = getIndex(blockIdx.x, blockIdx.y, blockIdx.z, gridDim.x, gridDim.y);
@@ -85,7 +96,7 @@ extern "C"
 
 		int weightID = thisLayerID * blockSize + prevLayerID;
 
-		float gradient = (-step * activateDer(prev[prevLayerID], 0) * error[thisLayerID]);
+		float gradient = (-step * activateDer(prev[prevLayerID], type) * error[thisLayerID]);
 		bias[thisLayerID] += gradient;
 
 		float velocity = vel[weightID] * mu - prev[prevLayerID] * gradient;

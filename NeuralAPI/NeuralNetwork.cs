@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using ManagedCuda;
 
-namespace PredictionNetwork
+namespace NeuralAPI
 {
     public class NeuralNetwork
     {
@@ -18,7 +18,7 @@ namespace PredictionNetwork
 
         Random r = new Random();
 
-        public void buildNetwork((Int3 size, int type)[] info)
+        public void buildNetwork(dynamic[] info)
         {
             ctx = new CudaContext();
 
@@ -41,7 +41,9 @@ namespace PredictionNetwork
                                       layers[i].weights.DevicePointer, 
                                       layers[i - 1].data.DevicePointer);
 
-                layers[i].activate.Run(layers[i].data.DevicePointer, layers[i].bias.DevicePointer, layers[i].type);
+                layers[i].activate.Run(layers[i].data.DevicePointer, 
+                                       layers[i].bias.DevicePointer, 
+                                       layers[i].type);
             }
         }
 

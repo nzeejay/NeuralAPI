@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PredictionNetwork;
+using NeuralAPI;
 
 
 namespace StockConsole
@@ -18,12 +18,11 @@ namespace StockConsole
         {
             nn = new NeuralNetwork();
 
-            nn.buildNetwork(new (Int3 size, int type)[] {(new Int3(784,1,1), 0 ),
-                                                         //(new Int3(1024,1,1), 0 ),
-                                                         (new Int3(512,1,1), 0 ),
-                                                         (new Int3(256,1,1), 0 ),
-                                                         (new Int3(10,1,1), 0 )
-                                                         });
+            nn.buildNetwork(new object[] {new {size = new Int3(784,1,1), type = 0 },
+                                          new {size = new Int3(512,1,1), type = 0 },
+                                          new {size = new Int3(256,1,1), type = 0 },
+                                          new {size = new Int3(10,1,1),  type = 0 }
+            });
 
             getData();
 

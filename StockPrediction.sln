@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PredictionNetwork", "PredictionNetwork\PredictionNetwork.csproj", "{E8F4874D-DFA5-4EFD-B6C9-1C8DF1CA0C14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralAPI", "PredictionNetwork\NeuralAPI.csproj", "{E8F4874D-DFA5-4EFD-B6C9-1C8DF1CA0C14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockConsole", "StockConsole\StockConsole.csproj", "{8EA43ECB-F1B0-4CE3-B9DD-76CEB6ACFCD9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleClient", "StockConsole\ConsoleClient.csproj", "{8EA43ECB-F1B0-4CE3-B9DD-76CEB6ACFCD9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PredictionClient", "PredictionClient\PredictionClient.csproj", "{D7BCABE8-D524-4AC5-8451-F075E93A94B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualisationClient", "PredictionClient\VisualisationClient.csproj", "{D7BCABE8-D524-4AC5-8451-F075E93A94B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
