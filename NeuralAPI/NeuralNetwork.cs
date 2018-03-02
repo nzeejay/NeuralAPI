@@ -8,7 +8,7 @@ using ManagedCuda;
 
 namespace NeuralAPI
 {
-    public class NeuralNetwork
+    public partial class NeuralNetwork
     {
         public Layer[] layers;
 
@@ -153,6 +153,16 @@ namespace NeuralAPI
 
             clearNetwork();
             return err / batchSize;
+        }
+
+        public void SaveNetwork()
+        {
+
+        }
+
+        public void LoadNetwork()
+        {
+
         }
     }
 }

@@ -7,8 +7,8 @@
     <ProjectGuid>{E8F4874D-DFA5-4EFD-B6C9-1C8DF1CA0C14}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PredictionNetwork</RootNamespace>
-    <AssemblyName>PredictionNetwork</AssemblyName>
+    <RootNamespace>NeuralAPI</RootNamespace>
+    <AssemblyName>NeuralAPI</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileNetwork.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="NeuralNetwork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
