@@ -21,8 +21,7 @@ namespace NeuralAPI
         string back;
         string clear;
 
-        public FileLayer(Layer layer)
-        {
+        public FileLayer(Layer layer) {
             data = layer.data;
             weights = layer.weights;
             bias = layer.bias;
@@ -31,10 +30,10 @@ namespace NeuralAPI
 
             type = layer.type;
 
-            forward  = layer.forward.KernelName;
+            forward = layer.forward.KernelName;
             activate = layer.activate.KernelName;
-            back     = layer.back.KernelName;
-            clear    = layer.clear.KernelName;
+            back = layer.back.KernelName;
+            clear = layer.clear.KernelName;
         }
     }
 
@@ -42,8 +41,7 @@ namespace NeuralAPI
     public class FileNetwork
     {
         FileLayer[] layers;
-        public FileNetwork(NeuralNetwork nn)
-        {
+        public FileNetwork(NeuralNetwork nn) {
 
         }
     }

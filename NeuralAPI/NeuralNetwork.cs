@@ -18,39 +18,33 @@ namespace NeuralAPI
 
         Random r = new Random();
 
-        public void buildNetwork(dynamic[] info)
-        {
+        public void buildNetwork(dynamic[] info) {
             ctx = new CudaContext();
 
             layers = new Layer[info.Length];
 
             layers[0] = new Layer(info[0].size, ctx);
 
-            for (int i = 1; i < layers.Length; i++)
-            {
+            for (int i = 1; i < layers.Length; i++) {
                 layers[i] = new Layer(info[i].size, layers[i - 1], ctx, info[i].type);
             }
 
         }
 
-        public void runNetwork()
-        {
-            for (int i = 1; i < layers.Length; i++)
-            {
+        public void runNetwork() {
+            for (int i = 1; i < layers.Length; i++) {
                 layers[i].forward.Run(layers[i].data.DevicePointer,
-                                      layers[i].weights.DevicePointer, 
+                                      layers[i].weights.DevicePointer,
                                       layers[i - 1].data.DevicePointer);
 
-                layers[i].activate.Run(layers[i].data.DevicePointer, 
-                                       layers[i].bias.DevicePointer, 
+                layers[i].activate.Run(layers[i].data.DevicePointer,
+                                       layers[i].bias.DevicePointer,
                                        layers[i].type);
             }
         }
 
-        public void backpropNetwork(float step, float mu)
-        {
-            for (int i = layers.Length - 1; i > 0; i--)
-            {
+        public void backpropNetwork(float step, float mu) {
+            for (int i = layers.Length - 1; i > 0; i--) {
                 layers[i].back.Run(layers[i].data.DevicePointer,
                                    layers[i].weights.DevicePointer,
                                    layers[i].bias.DevicePointer,
@@ -64,17 +58,14 @@ namespace NeuralAPI
             }
         }
 
-        public void clearNetwork()
-        {
-            foreach (var layer in layers)
-            {
+        public void clearNetwork() { 
+            foreach (var layer in layers) {
 
                 layer.clear.Run(layer.data.DevicePointer, layer.error.DevicePointer);
             }
         }
 
-        public void trainStep(int batchSize, float learningRate, float mu)
-        {
+        public void trainStep(int batchSize, float learningRate, float mu) {
             bool isScholastic = false;
 
             if (batchSize == -1)
@@ -83,8 +74,7 @@ namespace NeuralAPI
             if (isScholastic)
                 batchSize = trainingItems.Count();
 
-            for (int i = 0; i < batchSize; i++)
-            {
+            for (int i = 0; i < batchSize; i++) {
                 int index = i;
 
                 if (!isScholastic)
@@ -104,11 +94,9 @@ namespace NeuralAPI
             clearNetwork();
         }
 
-        private float[] getError(float[] data, float[] expected)
-        {
+        private float[] getError(float[] data, float[] expected) {
             float[] ret = new float[data.Length];
-            for (int i = 0; i < ret.Length; i++)
-            {
+            for (int i = 0; i < ret.Length; i++) {
                 //ret[i] = data[i] - expected[i];
                 ret[i] = expected[i] - data[i];
             }
@@ -116,8 +104,7 @@ namespace NeuralAPI
             return ret;
         }
 
-        public float printError(int batchSize)
-        {
+        public float printError(int batchSize) {
             bool isScholastic = false;
 
             if (batchSize == -1)
@@ -128,8 +115,7 @@ namespace NeuralAPI
 
             float err = 0;
 
-            for (int i = 0; i < batchSize; i++)
-            {
+            for (int i = 0; i < batchSize; i++) {
                 int index = i;
 
                 if (!isScholastic)
@@ -143,8 +129,7 @@ namespace NeuralAPI
 
                 float tempErr = 0;
 
-                for (int j = 0; j < output.Length; j++)
-                {
+                for (int j = 0; j < output.Length; j++) {
                     tempErr += (float)Math.Pow(trainingItems[index].output[j] - output[j], 2);
                 }
 
@@ -155,13 +140,11 @@ namespace NeuralAPI
             return err / batchSize;
         }
 
-        public void SaveNetwork()
-        {
+        public void SaveNetwork() {
 
         }
 
-        public void LoadNetwork()
-        {
+        public void LoadNetwork() {
 
         }
     }
