@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +19,7 @@ namespace NeuralAPI
 
         Random r = new Random();
 
-        public void buildNetwork(dynamic[] info) {
+        public void buildNetwork((Int3 size, int type)[] info) {
             ctx = new CudaContext();
 
             layers = new Layer[info.Length];
@@ -26,7 +27,7 @@ namespace NeuralAPI
             layers[0] = new Layer(info[0].size, ctx);
 
             for (int i = 1; i < layers.Length; i++) {
-                layers[i] = new Layer(info[i].size, layers[i - 1], ctx, info[i].type);
+                layers[i] = new Layer(info[i].size, layers[i - 1], ref ctx, info[i].type);
             }
 
         }

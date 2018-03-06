@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>VisualisationClient</RootNamespace>
     <AssemblyName>VisualisationClient</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -70,6 +70,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUIElements\NeuralNetworkFunctions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUIElements\LayerCreator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUIElements\TrainPane.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUIElements\ErrorGraph.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Form1.cs" />
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>

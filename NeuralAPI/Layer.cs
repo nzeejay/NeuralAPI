@@ -33,6 +33,8 @@ namespace NeuralAPI
         public CudaKernel back;
         public CudaKernel clear;
 
+        CudaContext ctx;
+
         Random r = new Random();
 
         public Layer(Int3 size, CudaContext ctx)
@@ -47,8 +49,10 @@ namespace NeuralAPI
             clear.GridDimensions = new dim3(size.x, size.y, size.z);
         }
 
-        public Layer(Int3 size, Layer prev, CudaContext ctx, int type)
+        public Layer(Int3 size, Layer prev, ref CudaContext ctx, int type)
         {
+            this.ctx = ctx;
+
             this.type = type;
             this.size = size;
 
@@ -70,6 +74,47 @@ namespace NeuralAPI
             clear.GridDimensions = new dim3(size.x, size.y, size.z);
 
             activate = ctx.LoadKernel("kernel.ptx", "Activate");
+            activate.GridDimensions = new dim3(size.x, size.y, size.z);
+        }
+
+        public Layer(FileLayer fl, ref CudaContext ctx) {
+            this.ctx = ctx;
+
+            type = fl.type;
+            size = fl.size;
+
+            data = new float[fl.size.Mul];
+            bias = new float[fl.size.Mul];
+            error = new float[fl.size.Mul];
+
+            forward = ctx.LoadKernel("kernel.ptx", "Forward");
+            forward.GridDimensions = new dim3(size.x, size.y, size.z);
+            forward.BlockDimensions = new dim3(fl.prevSize.x, fl.prevSize.y, fl.prevSize.z);
+
+            back = ctx.LoadKernel("kernel.ptx", "Backprop");
+            back.GridDimensions = new dim3(size.x, size.y, size.z);
+            back.BlockDimensions = new dim3(fl.prevSize.x, fl.prevSize.y, fl.prevSize.z);
+
+            clear = ctx.LoadKernel("kernel.ptx", "Clear");
+            clear.GridDimensions = new dim3(size.x, size.y, size.z);
+
+            activate = ctx.LoadKernel("kernel.ptx", "Activate");
+            activate.GridDimensions = new dim3(size.x, size.y, size.z);
+        }
+
+        private void generateKernels(string forwardName, string backName, string clrName, string activeName, dim3 kernelSize) {
+            forward = ctx.LoadKernel("kernel.ptx", forwardName);
+            forward.GridDimensions = new dim3(size.x, size.y, size.z);
+            forward.BlockDimensions = kernelSize;
+
+            back = ctx.LoadKernel("kernel.ptx", backName);
+            back.GridDimensions = new dim3(size.x, size.y, size.z);
+            back.BlockDimensions = kernelSize;
+
+            clear = ctx.LoadKernel("kernel.ptx", activeName);
+            clear.GridDimensions = new dim3(size.x, size.y, size.z);
+
+            activate = ctx.LoadKernel("kernel.ptx", activeName);
             activate.GridDimensions = new dim3(size.x, size.y, size.z);
         }
 

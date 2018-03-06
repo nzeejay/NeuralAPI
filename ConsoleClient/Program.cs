@@ -8,36 +8,37 @@ using System.Threading.Tasks;
 using NeuralAPI;
 
 
-namespace StockConsole
-{
-    class Program
-    {
+namespace StockConsole {
+    class Program {
 
         static NeuralNetwork nn;
 
-        static void Main(string[] args)
-        {
+        static void Main(string[] args) {
             nn = new NeuralNetwork();
 
-            nn.buildNetwork(new object[] {new {size = new Int3(10,3,1), type = 0 },
-                                          new {size = new Int3(512,1,1), type = 0 },
-                                          new {size = new Int3(256,1,1), type = 0 },
-                                          new {size = new Int3(1,1,1),  type = 0 }
-            });
+            var param = new(Int3 size, int type)[] {(new Int3(784,1,1), 0),
+                                                    (new Int3(200,1,1), 0),
+                                                    //(new Int3(24,1,1), 0),
+                                                    //(new Int3(256,1,1), 0),
+                                                    (new Int3(10,4,1), 0),
+                                                    (new Int3(10,1,1), 0)};
+
+            nn.buildNetwork(param);
 
             getData();
 
             long tick = 0;
-            float learn = 0.1f;
+            float learn = 0.01f;
 
-            while (true)
-            {
+            while (true) {
                 Console.WriteLine($"{nn.printError(128)} - {tick}:{learn}");
 
-                for (int i = 0; i < 5; i++)
-                {
-                    nn.trainStep(1024, learn, 0.8f);
-                    learn *= 0.999f;
+                for (int i = 0; i < 5; i++) {
+                    nn.trainStep(512, learn, 0.8f);
+                    //learn *= 0.995f;
+
+                    if (learn < 0.00001f)
+                        learn = 0.00001f;
                 }
             }
 
@@ -61,7 +62,7 @@ namespace StockConsole
             float[] weights = nn.layers[1].weights;
             float[] weights1 = nn.layers[2].weights;
         }
-        
+
         /*
 
         public static void getData()
@@ -100,34 +101,30 @@ namespace StockConsole
             }
         }
         */
-        
-        public static void getData()
-        {
+
+        public static void getData() {
             string[] img = File.ReadAllText("mnist_train.csv").Split('\n');
-            for (int i = 0; i < 6000; i++)
-            {
+            for (int i = 0; i < 6000; i++) {
                 string[] str = img[i].Split(',');
 
                 var input = new List<float>();
                 var output = new float[10];
 
-                for (int j = 0; j < 785; j++)
-                {
+                for (int j = 0; j < 785; j++) {
                     string thiStr = str[j];
                     float f = float.Parse(thiStr);
-                    if (j == 0)
-                    {
-                        output[(int)f] = 1;                        
+                    if (j == 0) {
+                        output[(int)f] = 1;
                     }
                     else
-                        input.Add(f/255);
-                        
+                        input.Add(f / 255);
+
                 }
                 nn.trainingItems.Add(new TrainingItem(input.ToArray(), output.ToArray()));
             }
 
             img = null;
         }
-        
+
     }
 }
