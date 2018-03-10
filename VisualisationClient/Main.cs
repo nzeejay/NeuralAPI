@@ -20,7 +20,14 @@ namespace VisualisationClient {
 
         private void Main_Load(object sender, EventArgs e) {
             iniTrainPane();
-            iniErrorPane();
+            ErrorIni();
+
+        }
+
+        private void ErrorIni() {
+            trackErrorScale.Tag = new { track = trackErrorScale, label = lblErrorScale, YPos = tbErrorYPos };
+            tbErrorYPos.Tag = new { track = tbErrorYPos };
+            errorGraph.linkErrorList(ref ErrorHistory);
         }
 
         private int currentKey = -1;

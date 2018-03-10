@@ -11,40 +11,59 @@ using System.Windows.Forms;
 namespace VisualisationClient {
     public partial class Main : Form {
         private void iniTrainPane() {
-            txtTrainStartVal.Text = "0.4";
-            txtTrainStartVal_Leave(null, null);
+            txtTrainMinVal.Tag = new { text = txtTrainMinVal, track = trainMinValTrack };
+            txtTrainStartVal.Tag = new { text = txtTrainStartVal, track = trainStartValTrack };
+            trainMinValTrack.Tag = new { text = txtTrainMinVal, track = trainMinValTrack };
+            trainStartValTrack.Tag = new { text = txtTrainStartVal, track = trainStartValTrack };
+            trainDecayValTrack.Tag = new { text = txtTrainDecayVal, track = trainDecayValTrack };
+            txtTrainDecayVal.Tag = new { text = txtTrainDecayVal, track = trainDecayValTrack };
+
+
+            txtTrainStartVal.Text = "0.1";
+            trainTextChange(txtTrainStartVal, null);
+
+            txtTrainMinVal.Text = "0.0001";
+            trainTextChange(txtTrainMinVal, null);
+
+            txtTrainDecayVal.Text = "0.9";
+            trainTextChange(txtTrainDecayVal, null);
         }
 
-        private void trainStartValTrack_ValueChanged(object sender, EventArgs e) {
-            TrackBar send = ((TrackBar)sender);
+        private void trainBindTrackbars(object sender) {
+            dynamic tag = ((TrackBar)sender).Tag;
 
-            ((TextBox)send.Tag).Text = "" + TrainGetFloat(trainStartValTrack);
+            if (trainMinValTrack.Value > trainStartValTrack.Value 
+                && tag.track == trainMinValTrack)
+                trainStartValTrack.Value = trainMinValTrack.Value;
 
-            if (trainMinValTrack.Value > trainStartValTrack.Value)
+            if (trainMinValTrack.Value > trainStartValTrack.Value 
+                && tag.track == trainStartValTrack)
                 trainMinValTrack.Value = trainStartValTrack.Value;
         }
 
-        private void txtTrainStartVal_Leave(object sender, EventArgs e) {
-            float val = TrainGetFloat(txtTrainStartVal.Text);
+        private void trainTrackbar_ValueChanged(object sender, EventArgs e) {
+            dynamic tag = ((TrackBar)sender).Tag;
 
-            txtTrainStartVal.Text = "" + val;
-            trainStartValTrack.Value = (int)(val * (trainStartValTrack.Maximum - trainStartValTrack.Minimum));
+            tag.text.Text = "" + TrainGetFloat(tag.track);
+
+            trainBindTrackbars(sender);
         }
 
-        private void txtTrainStartVal_KeyPress(object sender, KeyPressEventArgs e) {
+        private void trainText_KeyPress(object sender, KeyPressEventArgs e) {
             if (e.KeyChar == '\r')
-                txtTrainStartVal_Leave(null, null);
+                trainTextChange(sender, null);
         }
 
-        private void trainMinValTrack_ValueChanged(object sender, EventArgs e) {
-            txtTrainMinVal.Text = "" + TrainGetFloat(trainMinValTrack);
+        private void trainTextChange(object sender, EventArgs e) {
+            dynamic tag = ((TextBox)sender).Tag;
 
-            if (trainMinValTrack.Value > trainStartValTrack.Value)
-                trainStartValTrack.Value = trainMinValTrack.Value;
-        }
+            var val = TrainGetFloat(tag.text.Text);
 
-        private void trainDecayValTrack_ValueChanged(object sender, EventArgs e) {
-            txtTrainDecayVal.Text = "" + TrainGetFloat(trainDecayValTrack);
+            tag.text.Text = "" + val;
+
+            tag.track.Value = (int)(val * tag.track.Maximum);
+
+            trainBindTrackbars(tag.track);
         }
 
         private float TrainGetFloat(TrackBar tb) {
@@ -52,9 +71,7 @@ namespace VisualisationClient {
         }
 
         private float TrainGetFloat(string str) {
-            float f = 0;
-
-            float.TryParse(str, out f);
+            float.TryParse(str, out float f);
 
             float max = Math.Max(0, f);
             float min = Math.Min(1, max);

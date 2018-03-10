@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.Control = new System.Windows.Forms.Panel();
             this.ControlSplitter = new System.Windows.Forms.SplitContainer();
             this.lblLayerInfo = new System.Windows.Forms.Label();
@@ -63,10 +64,10 @@
             this.txtTrainDecayVal = new System.Windows.Forms.TextBox();
             this.trainDecayValTrack = new System.Windows.Forms.TrackBar();
             this.trainStartValTrack = new System.Windows.Forms.TrackBar();
-            this.txtTrainStartVal = new System.Windows.Forms.TextBox();
             this.trainMinValTrack = new System.Windows.Forms.TrackBar();
             this.txtTrainMinVal = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
+            this.txtTrainStartVal = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.btnTrainingStart = new System.Windows.Forms.Button();
@@ -75,10 +76,10 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.tbErrorYPos = new System.Windows.Forms.TrackBar();
             this.label10 = new System.Windows.Forms.Label();
-            this.trckErrorScale = new System.Windows.Forms.TrackBar();
+            this.trackErrorScale = new System.Windows.Forms.TrackBar();
             this.lblErrorScale = new System.Windows.Forms.Label();
-            this.ErrorGraph = new System.Windows.Forms.PictureBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.errorGraph = new VisualisationClient.GUIElements.ErrorGraph();
             this.Control.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ControlSplitter)).BeginInit();
             this.ControlSplitter.Panel1.SuspendLayout();
@@ -98,8 +99,7 @@
             this.tabErrorPage.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbErrorYPos)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trckErrorScale)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ErrorGraph)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackErrorScale)).BeginInit();
             this.SuspendLayout();
             // 
             // Control
@@ -459,6 +459,9 @@
             this.txtTrainDecayVal.Name = "txtTrainDecayVal";
             this.txtTrainDecayVal.Size = new System.Drawing.Size(67, 20);
             this.txtTrainDecayVal.TabIndex = 10;
+            this.txtTrainDecayVal.Text = "0.9";
+            this.txtTrainDecayVal.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.trainText_KeyPress);
+            this.txtTrainDecayVal.Leave += new System.EventHandler(this.trainTextChange);
             // 
             // trainDecayValTrack
             // 
@@ -470,7 +473,7 @@
             this.trainDecayValTrack.TabIndex = 8;
             this.trainDecayValTrack.TickFrequency = 1000;
             this.trainDecayValTrack.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.trainDecayValTrack.ValueChanged += new System.EventHandler(this.trainDecayValTrack_ValueChanged);
+            this.trainDecayValTrack.ValueChanged += new System.EventHandler(this.trainTrackbar_ValueChanged);
             // 
             // trainStartValTrack
             // 
@@ -483,21 +486,9 @@
             this.trainStartValTrack.RightToLeftLayout = true;
             this.trainStartValTrack.Size = new System.Drawing.Size(104, 20);
             this.trainStartValTrack.TabIndex = 22;
-            this.trainStartValTrack.Tag = this.txtTrainStartVal;
             this.trainStartValTrack.TickFrequency = 1000;
             this.trainStartValTrack.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.trainStartValTrack.ValueChanged += new System.EventHandler(this.trainStartValTrack_ValueChanged);
-            // 
-            // txtTrainStartVal
-            // 
-            this.txtTrainStartVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTrainStartVal.Location = new System.Drawing.Point(10, 48);
-            this.txtTrainStartVal.Name = "txtTrainStartVal";
-            this.txtTrainStartVal.Size = new System.Drawing.Size(67, 20);
-            this.txtTrainStartVal.TabIndex = 18;
-            this.txtTrainStartVal.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtTrainStartVal_KeyPress);
-            this.txtTrainStartVal.Leave += new System.EventHandler(this.txtTrainStartVal_Leave);
+            this.trainStartValTrack.ValueChanged += new System.EventHandler(this.trainTrackbar_ValueChanged);
             // 
             // trainMinValTrack
             // 
@@ -511,7 +502,8 @@
             this.trainMinValTrack.TabIndex = 21;
             this.trainMinValTrack.TickFrequency = 1000;
             this.trainMinValTrack.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.trainMinValTrack.ValueChanged += new System.EventHandler(this.trainMinValTrack_ValueChanged);
+            this.trainMinValTrack.Value = 10;
+            this.trainMinValTrack.ValueChanged += new System.EventHandler(this.trainTrackbar_ValueChanged);
             // 
             // txtTrainMinVal
             // 
@@ -521,6 +513,9 @@
             this.txtTrainMinVal.Name = "txtTrainMinVal";
             this.txtTrainMinVal.Size = new System.Drawing.Size(67, 20);
             this.txtTrainMinVal.TabIndex = 20;
+            this.txtTrainMinVal.Text = "0.0001";
+            this.txtTrainMinVal.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.trainText_KeyPress);
+            this.txtTrainMinVal.Leave += new System.EventHandler(this.trainTextChange);
             // 
             // label8
             // 
@@ -530,6 +525,18 @@
             this.label8.Size = new System.Drawing.Size(57, 13);
             this.label8.TabIndex = 19;
             this.label8.Text = "Min Value:";
+            // 
+            // txtTrainStartVal
+            // 
+            this.txtTrainStartVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtTrainStartVal.Location = new System.Drawing.Point(10, 48);
+            this.txtTrainStartVal.Name = "txtTrainStartVal";
+            this.txtTrainStartVal.Size = new System.Drawing.Size(67, 20);
+            this.txtTrainStartVal.TabIndex = 18;
+            this.txtTrainStartVal.Text = "0.1";
+            this.txtTrainStartVal.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.trainText_KeyPress);
+            this.txtTrainStartVal.Leave += new System.EventHandler(this.trainTextChange);
             // 
             // label7
             // 
@@ -576,8 +583,8 @@
             // 
             // tabErrorPage
             // 
+            this.tabErrorPage.Controls.Add(this.errorGraph);
             this.tabErrorPage.Controls.Add(this.panel2);
-            this.tabErrorPage.Controls.Add(this.ErrorGraph);
             this.tabErrorPage.Location = new System.Drawing.Point(4, 22);
             this.tabErrorPage.Name = "tabErrorPage";
             this.tabErrorPage.Padding = new System.Windows.Forms.Padding(3);
@@ -585,7 +592,6 @@
             this.tabErrorPage.TabIndex = 0;
             this.tabErrorPage.Text = "Error Graph";
             this.tabErrorPage.UseVisualStyleBackColor = true;
-            this.tabErrorPage.Resize += new System.EventHandler(this.drawError);
             // 
             // panel2
             // 
@@ -594,7 +600,7 @@
             this.panel2.BackColor = System.Drawing.Color.LightGray;
             this.panel2.Controls.Add(this.tbErrorYPos);
             this.panel2.Controls.Add(this.label10);
-            this.panel2.Controls.Add(this.trckErrorScale);
+            this.panel2.Controls.Add(this.trackErrorScale);
             this.panel2.Controls.Add(this.lblErrorScale);
             this.panel2.Location = new System.Drawing.Point(-4, 0);
             this.panel2.Name = "panel2";
@@ -603,42 +609,39 @@
             // 
             // tbErrorYPos
             // 
-            this.tbErrorYPos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.tbErrorYPos.AutoSize = false;
-            this.tbErrorYPos.LargeChange = 1;
-            this.tbErrorYPos.Location = new System.Drawing.Point(197, 0);
-            this.tbErrorYPos.Maximum = 6;
-            this.tbErrorYPos.Minimum = 1;
+            this.tbErrorYPos.Location = new System.Drawing.Point(36, 3);
+            this.tbErrorYPos.Maximum = 50;
             this.tbErrorYPos.Name = "tbErrorYPos";
-            this.tbErrorYPos.Size = new System.Drawing.Size(104, 22);
+            this.tbErrorYPos.Size = new System.Drawing.Size(155, 19);
             this.tbErrorYPos.TabIndex = 18;
+            this.tbErrorYPos.TickFrequency = 5;
             this.tbErrorYPos.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.tbErrorYPos.Value = 2;
+            this.tbErrorYPos.ValueChanged += new System.EventHandler(this.errorGraph.TbErrorYPos_ValueChanged);
             // 
             // label10
             // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(156, 7);
+            this.label10.Location = new System.Drawing.Point(4, 7);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(35, 13);
             this.label10.TabIndex = 17;
             this.label10.Text = "YPos:";
             // 
-            // trckErrorScale
+            // trackErrorScale
             // 
-            this.trckErrorScale.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.trckErrorScale.AutoSize = false;
-            this.trckErrorScale.LargeChange = 1;
-            this.trckErrorScale.Location = new System.Drawing.Point(371, 0);
-            this.trckErrorScale.Maximum = 6;
-            this.trckErrorScale.Minimum = 1;
-            this.trckErrorScale.Name = "trckErrorScale";
-            this.trckErrorScale.Size = new System.Drawing.Size(104, 22);
-            this.trckErrorScale.TabIndex = 16;
-            this.trckErrorScale.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.trckErrorScale.Value = 2;
-            this.trckErrorScale.ValueChanged += new System.EventHandler(this.trckErrorScale_ValueChanged);
+            this.trackErrorScale.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.trackErrorScale.AutoSize = false;
+            this.trackErrorScale.LargeChange = 1;
+            this.trackErrorScale.Location = new System.Drawing.Point(371, 3);
+            this.trackErrorScale.Maximum = 12;
+            this.trackErrorScale.Minimum = 1;
+            this.trackErrorScale.Name = "trackErrorScale";
+            this.trackErrorScale.Size = new System.Drawing.Size(104, 19);
+            this.trackErrorScale.TabIndex = 16;
+            this.trackErrorScale.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.trackErrorScale.Value = 2;
+            this.trackErrorScale.ValueChanged += new System.EventHandler(this.errorGraph.trackErrorScale_ValueChanged);
             // 
             // lblErrorScale
             // 
@@ -650,19 +653,6 @@
             this.lblErrorScale.TabIndex = 0;
             this.lblErrorScale.Text = "Scale: 100";
             // 
-            // ErrorGraph
-            // 
-            this.ErrorGraph.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ErrorGraph.Location = new System.Drawing.Point(0, 20);
-            this.ErrorGraph.Name = "ErrorGraph";
-            this.ErrorGraph.Size = new System.Drawing.Size(474, 541);
-            this.ErrorGraph.TabIndex = 0;
-            this.ErrorGraph.TabStop = false;
-            this.ErrorGraph.MouseLeave += new System.EventHandler(this.ErrorGraph_MouseLeave);
-            this.ErrorGraph.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ErrorMouseInteractions);
-            // 
             // tabPage2
             // 
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
@@ -672,6 +662,17 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // errorGraph
+            // 
+            this.errorGraph.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.errorGraph.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("errorGraph.BackgroundImage")));
+            this.errorGraph.Location = new System.Drawing.Point(0, 23);
+            this.errorGraph.Name = "errorGraph";
+            this.errorGraph.Size = new System.Drawing.Size(471, 526);
+            this.errorGraph.TabIndex = 2;
             // 
             // Main
             // 
@@ -713,8 +714,7 @@
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbErrorYPos)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trckErrorScale)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ErrorGraph)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackErrorScale)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -751,10 +751,9 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.TabPage tabErrorPage;
-        private System.Windows.Forms.PictureBox ErrorGraph;
         private System.Windows.Forms.Button btnTrainingStart;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.TrackBar trckErrorScale;
+        private System.Windows.Forms.TrackBar trackErrorScale;
         private System.Windows.Forms.Label lblErrorScale;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label9;
@@ -773,5 +772,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button btnTrainingStop;
+        private GUIElements.ErrorGraph errorGraph;
     }
 }
