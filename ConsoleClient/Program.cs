@@ -13,32 +13,37 @@ namespace StockConsole {
 
         static NeuralNetwork nn;
 
+        static List<TrainingItem> test;
+
         static void Main(string[] args) {
             nn = new NeuralNetwork();
 
             var param = new(Int3 size, int type)[] {(new Int3(784,1,1), 0),
-                                                    (new Int3(200,1,1), 0),
-                                                    //(new Int3(24,1,1), 0),
-                                                    //(new Int3(256,1,1), 0),
-                                                    (new Int3(10,4,1), 0),
+                                                    (new Int3(512,1,1), 0),
+                                                    //(new Int3(128,1,1), 0),
+                                                    (new Int3(256,1,1), 0),
+                                                    (new Int3(128,1,1), 0),
                                                     (new Int3(10,1,1), 0)};
 
             nn.buildNetwork(param);
 
-            getData();
+            getGoldData();
 
             long tick = 0;
-            float learn = 0.01f;
+            float learn = 0.05f;
 
             while (true) {
-                Console.WriteLine($"{nn.printError(128)} - {tick}:{learn}");
+                Console.WriteLine($"{Math.Sqrt(nn.printError(-1))} - {tick}:{learn}");
 
-                for (int i = 0; i < 5; i++) {
-                    nn.trainStep(512, learn, 0.8f);
-                    //learn *= 0.995f;
+                for (int i = 0; i < 10; i++) {
+                    nn.trainStep(256, learn, 0.5f);
+                    learn *= 0.99f;
 
-                    if (learn < 0.00001f)
-                        learn = 0.00001f;
+                    //float[] w = nn.layers[3].weights;
+                    //float[] v = nn.layers[3].data;
+
+                    if (learn < 0.000005f)
+                        learn = 0.000005f;
                 }
             }
 
@@ -102,9 +107,41 @@ namespace StockConsole {
         }
         */
 
+        public static void getGoldData() {
+            string[] days = File.ReadAllText("GoldPrice.csv").Split('a');
+            for (int i = 0; i < days.Length; i++)
+                days[i].Replace('\n', ',');
+
+
+        }
+
         public static void getData() {
             string[] img = File.ReadAllText("mnist_train.csv").Split('\n');
             for (int i = 0; i < 6000; i++) {
+                string[] str = img[i].Split(',');
+
+                var input = new List<float>();
+                var output = new float[10];
+
+                for (int j = 0; j < 785; j++) {
+                    string thiStr = str[j];
+                    float f = float.Parse(thiStr);
+                    if (j == 0) {
+                        output[(int)f] = 1;
+                    }
+                    else
+                        input.Add(f / 255);
+
+                }
+                nn.trainingItems.Add(new TrainingItem(input.ToArray(), output.ToArray()));
+            }
+
+            img = null;
+        }
+
+        public static void getTest() {
+            string[] img = File.ReadAllText("mnist_train.csv").Split('\n');
+            for (int i = 0; i < img.Length; i++) {
                 string[] str = img[i].Split(',');
 
                 var input = new List<float>();

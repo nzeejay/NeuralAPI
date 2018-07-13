@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace VisualisationClient.GUIElements {
-    public partial class ErrorGraph : UserControl {
+    public class ErrorGraph : UserControl {
         List<float> ErrorHistory = new List<float>();
 
         int yPointWidth = 100;

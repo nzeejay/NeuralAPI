@@ -17,7 +17,13 @@ namespace NeuralAPI
 
         public CudaContext ctx;
 
-        Random r = new Random();
+        public Random r = new Random();
+
+        public NeuralNetwork() {}
+
+        public NeuralNetwork((Int3 size, int type)[] info) {
+            buildNetwork(info);
+        }
 
         public void buildNetwork((Int3 size, int type)[] info) {
             ctx = new CudaContext();
@@ -66,26 +72,29 @@ namespace NeuralAPI
             }
         }
 
-        public void trainStep(int batchSize, float learningRate, float mu) {
+        public void trainStep(int batchSize, float learningRate, float mu, List<TrainingItem> ti = null) {
+            if (ti == null)
+                ti = trainingItems;
+
             bool isScholastic = false;
 
             if (batchSize == -1)
                 isScholastic = true;
 
             if (isScholastic)
-                batchSize = trainingItems.Count();
+                batchSize = ti.Count();
 
             for (int i = 0; i < batchSize; i++) {
                 int index = i;
 
                 if (!isScholastic)
-                    r.Next(trainingItems.Count);
+                    index = r.Next(ti.Count);
 
                 clearNetwork();
-                layers[0].data.CopyToDevice(trainingItems[index].input);
+                layers[0].data.CopyToDevice(ti[index].input);
                 runNetwork();
 
-                var err = getError(layers[layers.Length - 1].data, trainingItems[index].output);
+                var err = getError(layers[layers.Length - 1].data, ti[index].output);
 
                 layers[layers.Length - 1].error.CopyToDevice(err);
 
@@ -98,21 +107,24 @@ namespace NeuralAPI
         private float[] getError(float[] data, float[] expected) {
             float[] ret = new float[data.Length];
             for (int i = 0; i < ret.Length; i++) {
-                //ret[i] = data[i] - expected[i];
-                ret[i] = expected[i] - data[i];
-            }
+                ret[i] = data[i] - expected[i];
+                //ret[i] = expected[i] - data[i];
+             }
 
-            return ret;
+             return ret;
         }
 
-        public float printError(int batchSize) {
+        public float printError(int batchSize, List<TrainingItem> ti = null) {
+            if (ti == null)
+                ti = trainingItems;
+
             bool isScholastic = false;
 
             if (batchSize == -1)
                 isScholastic = true;
 
             if (isScholastic)
-                batchSize = trainingItems.Count();
+                batchSize = ti.Count();
 
             float err = 0;
 
@@ -120,10 +132,10 @@ namespace NeuralAPI
                 int index = i;
 
                 if (!isScholastic)
-                    r.Next(trainingItems.Count);
+                    index = r.Next(ti.Count);
 
                 clearNetwork();
-                layers[0].data.CopyToDevice(trainingItems[index].input);
+                layers[0].data.CopyToDevice(ti[index].input);
                 runNetwork();
 
                 float[] output = layers[layers.Length - 1].data;
@@ -131,7 +143,7 @@ namespace NeuralAPI
                 float tempErr = 0;
 
                 for (int j = 0; j < output.Length; j++) {
-                    tempErr += (float)Math.Pow(trainingItems[index].output[j] - output[j], 2);
+                    tempErr += (float)Math.Pow(ti[index].output[j] - output[j], 2);
                 }
 
                 err += tempErr / output.Length;

@@ -14,16 +14,14 @@ extern "C"
 	}
 
 	__device__ float relu(float f) {
-		if (f < 0)
-			return 0;
 
-		return f;
+		return fmaxf(0, f);
 	}
 
 	__device__ float reluDer(float f) {
-		float ret = -1;
+		float ret = 1;
 
-		if (f < 0)
+		if (f <= 0)
 			ret = 0;
 
 		return ret;
@@ -42,7 +40,6 @@ extern "C"
 		case(1):
 			data[ID] = relu(data[ID] + bias[ID]);
 			break;
-		
 		default:
 			break;
 		}
@@ -58,8 +55,19 @@ extern "C"
 			return reluDer(f);
 			break;
 		}
-
 		return 1.f;
+	}
+
+	__global__ float SoftmaxSigma(float *data, float ret) {
+		int thisLayerID = getIndex(blockIdx.x, blockIdx.y, blockIdx.z, gridDim.x, gridDim.y);
+		
+		atomicAdd(&ret, data[thisLayerID]);
+	}
+
+	__global__ void SoftmaxFinal(float *data, float val) {
+		int thisLayerID = getIndex(blockIdx.x, blockIdx.y, blockIdx.z, gridDim.x, gridDim.y);
+		
+		data[thisLayerID] /= val; 
 	}
 
 	// Device code
@@ -96,14 +104,16 @@ extern "C"
 
 		int weightID = thisLayerID * blockSize + prevLayerID;
 
-		float gradient = (-step * activateDer(prev[prevLayerID], type) * error[thisLayerID]);
-		bias[thisLayerID] += gradient;
+		float gradient = (activateDer(prev[prevLayerID], type) * 2 * error[thisLayerID]);			
+		
+		bias[thisLayerID] += -step * gradient;
 
-		float velocity = vel[weightID] * mu - prev[prevLayerID] * gradient;
+		float velocity = vel[weightID] * mu - step * prev[prevLayerID] * gradient;
 		vel[weightID] = velocity;// mu * vel[weightID] + (1 - mu) * powf(gradient, 2);
-		weights[weightID] += velocity;// prev[prevLayerID] * gradient / (sqrtf(vel[weightID]) + 0.000001f);;
+		weights[weightID] += velocity;// prev[prevLayerID] * gradient / (sqrtf(vel[weightID]) + 0.000001f);
 
 		float prevActGD = weights[weightID] * gradient;
+//printf("grad: %f act: %f err: %f prev: %f prevActGD: %f\n", gradient, activateDer(prev[prevLayerID], type), error[thisLayerID], prev[prevLayerID], prevActGD);
 		atomicAdd(&prevError[prevLayerID], prevActGD);
 	}
 

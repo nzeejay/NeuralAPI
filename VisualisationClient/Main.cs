@@ -10,8 +10,6 @@ using System.Windows.Forms;
 
 namespace VisualisationClient {
     public partial class Main : Form {
-
-
         public List<float> ErrorHistory = new List<float>();
 
         public Main() {

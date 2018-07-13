@@ -19,13 +19,8 @@ namespace VisualisationClient {
             txtTrainDecayVal.Tag = new { text = txtTrainDecayVal, track = trainDecayValTrack };
 
 
-            txtTrainStartVal.Text = "0.1";
             trainTextChange(txtTrainStartVal, null);
-
-            txtTrainMinVal.Text = "0.0001";
             trainTextChange(txtTrainMinVal, null);
-
-            txtTrainDecayVal.Text = "0.9";
             trainTextChange(txtTrainDecayVal, null);
         }
 

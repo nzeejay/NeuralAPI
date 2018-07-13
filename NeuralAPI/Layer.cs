@@ -33,6 +33,10 @@ namespace NeuralAPI
         public CudaKernel back;
         public CudaKernel clear;
 
+        public CudaKernel SoftmaxSigma;
+        public CudaKernel SoftmaxFinal;
+        public CudaDeviceVariable<float> SoftmaxVal;
+
         CudaContext ctx;
 
         Random r = new Random();
@@ -49,8 +53,7 @@ namespace NeuralAPI
             clear.GridDimensions = new dim3(size.x, size.y, size.z);
         }
 
-        public Layer(Int3 size, Layer prev, ref CudaContext ctx, int type)
-        {
+        public Layer(Int3 size, Layer prev, ref CudaContext ctx, int type) {
             this.ctx = ctx;
 
             this.type = type;
@@ -75,6 +78,14 @@ namespace NeuralAPI
 
             activate = ctx.LoadKernel("kernel.ptx", "Activate");
             activate.GridDimensions = new dim3(size.x, size.y, size.z);
+
+            SoftmaxSigma = ctx.LoadKernel("kernel.ptx", "SoftmaxSigma");
+            SoftmaxSigma.GridDimensions = new dim3(size.x, size.y, size.z);
+
+            SoftmaxFinal = ctx.LoadKernel("kernel.ptx", "SoftmaxFinal");
+            SoftmaxFinal.BlockDimensions = new dim3(size.x, size.y, size.z);
+
+            SoftmaxVal = new float[] { 0 };
         }
 
         public Layer(FileLayer fl, ref CudaContext ctx) {
